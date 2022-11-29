@@ -40,8 +40,8 @@ jobs:
         id: create_package_version_skip_validation  
         shell: pwsh
         run: |
-            Write-Host "sfdx force:package:version:create -v $devhub_alias --package $env:PACKAGE_ALIAS --skipvalidation --installationkeybypass --wait 10 --json"
-            $package_creation_result_json = $( sfdx force:package:version:create -v $devhub_alias --package $env:PACKAGE_ALIAS --skipvalidation --installationkeybypass --wait 10 --json )
+            Write-Host "sfdx force:package:version:create -v $env:DEVHUB_ALIAS --package $env:PACKAGE_ALIAS --skipvalidation --installationkeybypass --wait 10 --json"
+            $package_creation_result_json = $( sfdx force:package:version:create -v $env:DEVHUB_ALIAS --package $env:PACKAGE_ALIAS --skipvalidation --installationkeybypass --wait 10 --json )
             $package_version_creation_result = $package_creation_result_json | ConvertFrom-Json
             $subscriber_id = $package_version_creation_result.result.SubscriberPackageVersionId
             . ./ci-cd/package/package_version_install.ps1 -org_to_install_alias $env:TARGET_ALIAS -subscriber_package_version_id $subscriber_id
