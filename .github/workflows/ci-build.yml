@@ -30,11 +30,11 @@ jobs:
     
       - name: CREATE SCRATCH ORG
         shell: pwsh
-        run: . .\ci-cd\scratch_org\create_scratch_org.ps1 -devhub_alias $env:DEVHUB_ALIAS -scratch_org_alias $env:TARGET_ORG
+        run: . .\ci-cd\scratch_org\create_scratch_org.ps1 -devhub_alias $env:DEVHUB_ALIAS -scratch_org_alias $env:TARGET_ALIAS
 
       - name: PUSH SOURCE CODE BASE TO SCRATCH ORG
         shell: pwsh
-        run: . .\ci-cd\scratch_org\push_src_to_scratch_org.ps1 -scratch_org_alias $env:TARGET_ORG
+        run: . .\ci-cd\scratch_org\push_src_to_scratch_org.ps1 -scratch_org_alias $env:TARGET_ALIAS
 
       - name: CREATE PACKAGE VERSION SKIP VALIDATION AND INSTALL PACKAGE
         id: create_package_version_skip_validation  
