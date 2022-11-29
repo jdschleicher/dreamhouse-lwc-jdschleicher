@@ -1,0 +1,49 @@
+name: ci-build
+
+on:
+  push: 
+    branches:
+      - 'ci_build'
+
+env:
+  GITHUB_JSON:                  ${{ toJSON(github) }}
+  DEVHUB_ALIAS:                 "devhub"
+  SF_DEVHUB_CLIENTID:           ${{ secrets.DEVHUB_AUTH_URL }}
+  TARGET_ALIAS:                 "target-org"
+  PACKAGE_ALIAS:                "DreamhouseLWC"
+
+jobs:
+  full-merge-run:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: CHECKOUT CURRENT REPOSITORY IN VIRTUAL MACHINE
+        uses: actions/checkout@v3
+
+      - name: INSTALL SFDX 
+        run: sh 'ci-cd/install/install-sfdx.sh'
+
+      - name: AUTHENTICATE DEVHUB
+        shell: pwsh
+        run: . .\ci-cd\authenticate\authenticate-salesforce-authurl.ps1 -org_alias $env:DEVHUB_ALIAS -auth_url $env:DEVHUB_AUTH_URL
+    
+      - name: CREATE SCRATCH ORG
+        shell: pwsh
+        run: . .\ci-cd\scratch_org\create_scratch_org.ps1 -devhub_alias $env:DEVHUB_ALIAS -scratch_org_alias $env:SCRATCH_ORG_ALIAS
+
+      - name: PUSH SOURCE CODE BASE TO SCRATCH ORG
+        shell: pwsh
+        run: . .\ci-cd\scratch_org\push_src_to_scratch_org.ps1 -scratch_org_alias $env:SCRATCH_ORG_ALIAS
+
+      - name: CREATE PACKAGE VERSION SKIP VALIDATION AND INSTALL PACKAGE
+        id: create_package_version_skip_validation  
+        shell: pwsh
+        run: |
+            Write-Host "sfdx force:package:version:create -v $devhub_alias --package $env:PACKAGE_ALIAS --skipvalidation --installationkeybypass --wait 10 --json"
+            $package_creation_result_json = $( sfdx force:package:version:create -v $devhub_alias --package $env:PACKAGE_ALIAS --skipvalidation --installationkeybypass --wait 10 --json )
+            $package_version_creation_result = $package_creation_result_json | ConvertFrom-Json
+            $subscriber_id = package_version_creation_result.result.SubscriberPackageVersionId
+            . ./ci-cd/package/package_version_install.ps1 -org_to_install_alias $env:TARGET_ALIAS -subscriber_package_version_id $subscriber_id
+
+
