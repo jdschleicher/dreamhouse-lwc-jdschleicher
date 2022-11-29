@@ -8,7 +8,7 @@ on:
 env:
   GITHUB_JSON:                  ${{ toJSON(github) }}
   DEVHUB_ALIAS:                 "devhub"
-  SF_DEVHUB_CLIENTID:           ${{ secrets.DEVHUB_AUTH_URL }}
+  DEVHUB_AUTH_URL:           ${{ secrets.DEVHUB_AUTH_URL }}
   TARGET_ALIAS:                 "target-org"
   PACKAGE_ALIAS:                "DreamhouseLWC"
 
